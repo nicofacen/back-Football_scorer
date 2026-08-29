@@ -2,6 +2,42 @@
 ### PRODUCTOS
 ### ========================================
 
+### Crear producto
+POST http://localhost:8080/api/productos
+Content-Type: application/json
+
+{
+    "nombre": "Camiseta Argentina",
+    "descripcion": "Camiseta titular",
+    "precio": 75000
+}
+
+###
+
+### Listar productos
+GET http://localhost:8080/api/productos
+
+###
+
+### Buscar producto por ID
+GET http://localhost:8080/api/productos/1
+
+###
+
+### Modificar producto
+PUT http://localhost:8080/api/productos/1
+Content-Type: application/json
+
+{
+    "nombre": "Camiseta Argentina 2026",
+    "descripcion": "Camiseta titular actualizada",
+    "precio": 80000
+}
+
+###
+
+### Eliminar producto
+DELETE http://localhost:8080/api/productos/1
 
 ### ========================================
 ### USUARIOS

@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uade.e_commerce.model.Producto;
+import com.uade.e_commerce.dto.ProductoRequest;
+import com.uade.e_commerce.dto.ProductoResponse;
 import com.uade.e_commerce.service.ProductoService;
 
 import java.util.List;
@@ -30,33 +31,38 @@ public class ProductoController {
 
 
     @GetMapping()
-    public ResponseEntity<List<Producto>> getAllProductos() {
-        return ResponseEntity.ok(productoService.getAllProductos());
+    public ResponseEntity<List<ProductoResponse>> listar() {
+        return ResponseEntity.ok(productoService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> getProductoById(@PathVariable Long id) {
-        return productoService.getProductoById(id)
+    public ResponseEntity<ProductoResponse> obtenerPorId(@PathVariable Long id) {
+        return productoService.obtenerPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping()
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        Producto creado = productoService.crearProducto(producto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    public ResponseEntity<ProductoResponse> crear(@RequestBody ProductoRequest request) {
+        return productoService.crear(request)
+                .map(producto -> ResponseEntity.status(HttpStatus.CREATED).body(producto))
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
-        return productoService.actualizarProducto(id, producto)
+    public ResponseEntity<ProductoResponse> actualizar(@PathVariable Long id,
+                                                       @RequestBody ProductoRequest request) {
+        if (!productoService.esValido(request)) {
+            return ResponseEntity.badRequest().build();
+        }
+        return productoService.actualizar(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
-        if (!productoService.eliminarProducto(id)) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        if (!productoService.eliminar(id)) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.noContent().build();

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
+import com.uade.e_commerce.model.Categoria;
 import com.uade.e_commerce.model.Producto;
+import com.uade.e_commerce.repository.CategoriaRepository;
 import com.uade.e_commerce.repository.ProductoRepository;
 
 import jakarta.transaction.Transactional;
@@ -17,9 +19,11 @@ import jakarta.transaction.Transactional;
 public class ProductoService {
 
     private final ProductoRepository productoRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    public ProductoService(ProductoRepository productoRepository) {
+    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository) {
         this.productoRepository = productoRepository;
+        this.categoriaRepository = categoriaRepository;
     }
 
     public List<ProductoResponse> listar() {
@@ -83,6 +87,32 @@ public class ProductoService {
                 && request.getPrecio() > 0
                 && request.getStock() != null
                 && request.getStock() >= 0;
+    }
+
+    public boolean asociarCategoria(Long productoId, Long categoriaId) {
+        Optional<Producto> producto = productoRepository.findById(productoId);
+        Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
+
+        if (producto.isEmpty() || categoria.isEmpty()) {
+            return false;
+        }
+
+        producto.get().getCategorias().add(categoria.get());
+        productoRepository.save(producto.get());
+        return true;
+    }
+
+    public boolean desasociarCategoria(Long productoId, Long categoriaId) {
+        Optional<Producto> producto = productoRepository.findById(productoId);
+        Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
+
+        if (producto.isEmpty() || categoria.isEmpty()) {
+            return false;
+        }
+
+        producto.get().getCategorias().remove(categoria.get());
+        productoRepository.save(producto.get());
+        return true;
     }
 
     private ProductoResponse toResponse(Producto producto) {

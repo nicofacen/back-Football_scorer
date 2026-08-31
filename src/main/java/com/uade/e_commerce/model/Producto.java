@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,6 +45,10 @@ public class Producto {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @ManyToOne
+    @JoinColumn(name = "club_id")
+    private Club club;
 
     @ManyToMany
     @JoinTable(

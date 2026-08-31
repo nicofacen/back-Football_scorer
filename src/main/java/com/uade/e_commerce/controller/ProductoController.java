@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.e_commerce.dto.ProductoRequest;
@@ -31,8 +32,11 @@ public class ProductoController {
 
 
     @GetMapping()
-    public ResponseEntity<List<ProductoResponse>> listar() {
-        return ResponseEntity.ok(productoService.listar());
+    public ResponseEntity<List<ProductoResponse>> listar(@RequestParam(required = false) String nombre,
+                                                           @RequestParam(required = false) Long clubId,
+                                                           @RequestParam(required = false) Long categoriaId,
+                                                           @RequestParam(required = false) Double precioMax) {
+        return ResponseEntity.ok(productoService.buscar(nombre, clubId, categoriaId, precioMax));
     }
 
     @GetMapping("/{id}")

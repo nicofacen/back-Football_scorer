@@ -5,11 +5,14 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.uade.e_commerce.dto.ClubResponse;
 import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
 import com.uade.e_commerce.model.Categoria;
+import com.uade.e_commerce.model.Club;
 import com.uade.e_commerce.model.Producto;
 import com.uade.e_commerce.repository.CategoriaRepository;
+import com.uade.e_commerce.repository.ClubRepository;
 import com.uade.e_commerce.repository.ProductoRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,15 +23,27 @@ public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final ClubRepository clubRepository;
 
-    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository) {
+    public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository,
+                            ClubRepository clubRepository) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.clubRepository = clubRepository;
     }
 
     public List<ProductoResponse> listar() {
+        return buscar(null, null, null, null);
+    }
+
+    public List<ProductoResponse> buscar(String nombre, Long clubId, Long categoriaId, Double precioMax) {
         return productoRepository.findByActivoTrue()
                 .stream()
+                .filter(p -> nombre == null || p.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                .filter(p -> clubId == null || (p.getClub() != null && p.getClub().getId().equals(clubId)))
+                .filter(p -> categoriaId == null
+                        || p.getCategorias().stream().anyMatch(c -> c.getId().equals(categoriaId)))
+                .filter(p -> precioMax == null || p.getPrecio() <= precioMax)
                 .map(this::toResponse)
                 .toList();
     }
@@ -51,6 +66,9 @@ public class ProductoService {
         producto.setStock(request.getStock());
         producto.setImagenUrl(request.getImagenUrl());
         producto.setActivo(true);
+        if (request.getClubId() != null) {
+            producto.setClub(clubRepository.findById(request.getClubId()).orElse(null));
+        }
 
         return Optional.of(toResponse(productoRepository.save(producto)));
     }
@@ -64,6 +82,9 @@ public class ProductoService {
                     producto.setPrecio(datos.getPrecio());
                     producto.setStock(datos.getStock());
                     producto.setImagenUrl(datos.getImagenUrl());
+                    producto.setClub(datos.getClubId() == null
+                            ? null
+                            : clubRepository.findById(datos.getClubId()).orElse(null));
                     return productoRepository.save(producto);
                 })
                 .map(this::toResponse);
@@ -86,7 +107,8 @@ public class ProductoService {
                 && request.getPrecio() != null
                 && request.getPrecio() > 0
                 && request.getStock() != null
-                && request.getStock() >= 0;
+                && request.getStock() >= 0
+                && (request.getClubId() == null || clubRepository.existsById(request.getClubId()));
     }
 
     public boolean asociarCategoria(Long productoId, Long categoriaId) {
@@ -123,7 +145,15 @@ public class ProductoService {
                 producto.getPrecio(),
                 producto.getStock(),
                 producto.getImagenUrl(),
-                producto.getActivo());
+                producto.getActivo(),
+                toResponse(producto.getClub()));
+    }
+
+    private ClubResponse toResponse(Club club) {
+        if (club == null) {
+            return null;
+        }
+        return new ClubResponse(club.getId(), club.getNombre(), club.getPais(), club.getEscudoUrl());
     }
 
 }

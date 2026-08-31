@@ -16,4 +16,5 @@ public class ProductoResponse {
     private Integer stock;
     private String imagenUrl;
     private Boolean activo;
+    private ClubResponse club;
 }

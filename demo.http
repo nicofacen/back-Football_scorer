@@ -19,10 +19,6 @@
 ###   Actualmente dos POST iguales crean dos productos distintos,
 ###   mientras que Club y Categoria rechazan nombres repetidos.
 
-### - Revisar PUT de Usuario:
-###   el alcance contempla 400 para datos invalidos,
-###   pero actualmente el update no parece validar email duplicado.
-
 ### ========================================
 
 
@@ -917,8 +913,8 @@ GET http://localhost:8080/api/productos?categoriaId=1
 ### CARRITO
 ### ========================================
 
-### PENDIENTE DE MERGE EN EL REPOSITORIO REVISADO.
-### No ejecutar requests de carrito hasta que exista el controlador.
+### PENDIENTE: el modulo Carrito todavia no esta integrado en main.
+### Completar y probar esta seccion cuando se realice el merge.
 ###
 ### Cuando se mergee, esta seccion debe completar:
 ###
@@ -929,3 +925,41 @@ GET http://localhost:8080/api/productos?categoriaId=1
 ### DELETE /api/carritos/{usuarioId}
 ###
 ### ========================================
+
+### ========================================
+### BUGS CONOCIDOS / PRUEBAS DE REGRESION
+### ========================================
+
+### BUG CONFIRMADO:
+### PUT de Usuario con email duplicado.
+### Actualmente devuelve 500 Internal Server Error.
+### Deberia devolver 400 Bad Request.
+
+###
+
+### Crear segundo usuario
+### Esperado: 201 Created
+POST http://localhost:8080/api/usuarios/registro
+Content-Type: application/json
+
+{
+  "nombre": "Segundo",
+  "apellido": "Usuario",
+  "email": "segundo@test.com",
+  "password": "1234"
+}
+
+###
+
+### Reproducir bug: usar email ya existente
+### ACTUAL: 500 Internal Server Error
+### ESPERADO: 400 Bad Request
+PUT http://localhost:8080/api/usuarios/2
+Content-Type: application/json
+
+{
+  "nombre": "Segundo",
+  "apellido": "Usuario",
+  "email": "yuyo@test.com",
+  "password": "1234"
+}

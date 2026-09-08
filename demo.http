@@ -1,6 +1,5 @@
 ### ========================================
-### DEMO TPO - E-COMMERCE DE FUTBOL
-### -- Datos de demo y pruebas de endpoints --
+### E-COMMERCE DE FUTBOL
 ### ========================================
 ### IMPORTANTE:
 ### - La configuracion actual usa H2 en memoria.
@@ -8,18 +7,6 @@
 ### - Ejecutar este archivo DESDE ARRIBA HACIA ABAJO.
 ### - Ejecutar cada POST de creacion UNA SOLA VEZ por arranque.
 ### - Los IDs usados abajo suponen una base vacia al comenzar.
-### ========================================
-### PENDIENTES A VALIDAR CON EL GRUPO
-### ========================================
-
-### - Confirmar si la entidad Club representa tambien selecciones,
-###   ya que Argentina figura entre los datos semilla definidos.
-
-### - Definir si Producto debe permitir registros duplicados.
-###   Actualmente dos POST iguales crean dos productos distintos,
-###   mientras que Club y Categoria rechazan nombres repetidos.
-
-### ========================================
 
 
 ### ========================================
@@ -267,7 +254,7 @@ Content-Type: application/json
 
 
 ### ========================================
-### PRODUCTOS - DATOS SEMILLA
+### PRODUCTOS - SEED DATA
 ### 15 productos
 ### ========================================
 
@@ -677,7 +664,8 @@ GET http://localhost:8080/api/productos?clubId=1&precioMax=80000
 
 ### ========================================
 ### PRODUCTOS - PUT, DESASOCIAR Y DELETE
-### Se usa el producto temporal para no romper los 15 datos semilla
+### Se usa el producto temporal para probar modificaciones y baja logica
+### sin alterar los 15 productos seed
 ### ========================================
 
 ### Modificar producto temporal
@@ -883,83 +871,159 @@ POST http://localhost:8080/api/productos/1/categorias/99999
 
 
 ### ========================================
-### RECORRIDO DE DEMO DISPONIBLE HOY
+### CARRITO
 ### ========================================
 
-### 1) Usuario existente
-### Esperado: 200 OK
-GET http://localhost:8080/api/usuarios/1
+### Obtener carrito antes de crearlo
+### Esperado: 404 Not Found
+GET http://localhost:8080/api/carritos/1
 
 ###
 
-### 2) Listar catalogo
+### Agregar 2 Camisetas de Boca
+### Esperado: 201 Created
+POST http://localhost:8080/api/carritos/1/items
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "cantidad": 2
+}
+
+###
+
+### Obtener carrito creado
+### Esperado: 200 OK
+GET http://localhost:8080/api/carritos/1
+
+###
+
+### Agregar nuevamente el mismo producto
+### Debe sumar la cantidad al item existente, no crear otro item
+### Esperado: 201 Created
+POST http://localhost:8080/api/carritos/1/items
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "cantidad": 1
+}
+
+###
+
+### Actualizar cantidad del item
+### El primer ItemCarrito deberia tener id 1 con una base H2 vacia
+### Esperado: 200 OK
+PUT http://localhost:8080/api/carritos/1/items/1
+Content-Type: application/json
+
+{
+  "cantidad": 4
+}
+
+###
+
+### Intentar poner una cantidad mayor al stock
+### Producto 1 tiene stock 10
+### Esperado: 400 Bad Request
+PUT http://localhost:8080/api/carritos/1/items/1
+Content-Type: application/json
+
+{
+  "cantidad": 11
+}
+
+###
+
+### Intentar agregar cantidad invalida
+### Esperado: 400 Bad Request
+POST http://localhost:8080/api/carritos/1/items
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "cantidad": 0
+}
+
+###
+
+### Intentar agregar producto inexistente
+### Esperado: 404 Not Found
+POST http://localhost:8080/api/carritos/1/items
+Content-Type: application/json
+
+{
+  "productoId": 99999,
+  "cantidad": 1
+}
+
+###
+
+### Eliminar el item del carrito
+### Esperado: 204 No Content
+DELETE http://localhost:8080/api/carritos/1/items/1
+
+###
+
+### Ver carrito despues de eliminar el item
+### Esperado: 200 OK
+GET http://localhost:8080/api/carritos/1
+
+###
+
+### Agregar producto 2 para probar vaciar carrito
+### Esperado: 201 Created
+POST http://localhost:8080/api/carritos/1/items
+Content-Type: application/json
+
+{
+  "productoId": 2,
+  "cantidad": 1
+}
+
+###
+
+### Vaciar carrito completo
+### Esperado: 204 No Content
+DELETE http://localhost:8080/api/carritos/1
+
+###
+
+### Comprobar que el carrito quedo vacio
+### Esperado: 200 OK
+GET http://localhost:8080/api/carritos/1
+
+### ========================================
+### RECORRIDO FINAL PARA DEMOSTRACION
+### ========================================
+
+### 0. Usuario ya registrado previamente en la seccion USUARIOS
+### Usuario usado en la demo: id 1
+
+### 1. Listar catalogo
 ### Esperado: 200 OK
 GET http://localhost:8080/api/productos
 
 ###
 
-### 3) Filtrar catalogo por club - Boca
+### 2. Filtrar catalogo por Boca Juniors
 ### Esperado: 200 OK
 GET http://localhost:8080/api/productos?clubId=1
 
 ###
 
-### 4) Filtrar catalogo por categoria - Camisetas
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos?categoriaId=1
-
-
-### ========================================
-### CARRITO
-### ========================================
-
-### PENDIENTE: el modulo Carrito todavia no esta integrado en main.
-### Completar y probar esta seccion cuando se realice el merge.
-###
-### Cuando se mergee, esta seccion debe completar:
-###
-### GET    /api/carritos/{usuarioId}
-### POST   /api/carritos/{usuarioId}/items
-### PUT    /api/carritos/{usuarioId}/items/{itemId}
-### DELETE /api/carritos/{usuarioId}/items/{itemId}
-### DELETE /api/carritos/{usuarioId}
-###
-### ========================================
-
-### ========================================
-### BUGS CONOCIDOS / PRUEBAS DE REGRESION
-### ========================================
-
-### BUG CONFIRMADO:
-### PUT de Usuario con email duplicado.
-### Actualmente devuelve 500 Internal Server Error.
-### Deberia devolver 400 Bad Request.
-
-###
-
-### Crear segundo usuario
+### 3. Agregar 2 Camisetas de Boca al carrito
 ### Esperado: 201 Created
-POST http://localhost:8080/api/usuarios/registro
+POST http://localhost:8080/api/carritos/1/items
 Content-Type: application/json
 
 {
-  "nombre": "Segundo",
-  "apellido": "Usuario",
-  "email": "segundo@test.com",
-  "password": "1234"
+  "productoId": 1,
+  "cantidad": 2
 }
 
 ###
 
-### Reproducir bug: usar email ya existente
-### ACTUAL: 500 Internal Server Error
-### ESPERADO: 400 Bad Request
-PUT http://localhost:8080/api/usuarios/2
-Content-Type: application/json
-
-{
-  "nombre": "Segundo",
-  "apellido": "Usuario",
-  "email": "yuyo@test.com",
-  "password": "1234"
-}
+### 4. Ver carrito con total calculado
+### Esperado: 200 OK
+GET http://localhost:8080/api/carritos/1

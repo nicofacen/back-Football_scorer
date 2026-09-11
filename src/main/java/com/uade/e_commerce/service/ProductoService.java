@@ -83,6 +83,12 @@ public class ProductoService {
         productoRepository.save(producto);
     }
 
+    public ProductoResponse actualizarStock(Long id, Integer stock) {
+        Producto producto = buscarActivo(id);
+        producto.setStock(stock);
+        return toResponse(productoRepository.save(producto));
+    }
+
     public void asociarCategoria(Long productoId, Long categoriaId) {
         Producto producto = buscarActivo(productoId);
         Categoria categoria = buscarCategoria(categoriaId);

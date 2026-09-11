@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.e_commerce.dto.ActualizarStockRequest;
 import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
 import com.uade.e_commerce.service.ProductoService;
@@ -61,6 +63,13 @@ public class ProductoController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // PATCH y no PUT: modifica solo el stock, no reemplaza el producto entero.
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ProductoResponse> actualizarStock(@PathVariable Long id,
+                                                            @Valid @RequestBody ActualizarStockRequest request) {
+        return ResponseEntity.ok(productoService.actualizarStock(id, request.getStock()));
     }
 
     @PostMapping("/{productoId}/categorias/{categoriaId}")

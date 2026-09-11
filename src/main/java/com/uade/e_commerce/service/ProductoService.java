@@ -1,7 +1,6 @@
 package com.uade.e_commerce.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -84,35 +83,34 @@ public class ProductoService {
         productoRepository.save(producto);
     }
 
-    public boolean asociarCategoria(Long productoId, Long categoriaId) {
-        Optional<Producto> producto = productoRepository.findById(productoId);
-        Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
+    public void asociarCategoria(Long productoId, Long categoriaId) {
+        Producto producto = buscarActivo(productoId);
+        Categoria categoria = buscarCategoria(categoriaId);
 
-        if (producto.isEmpty() || categoria.isEmpty()) {
-            return false;
-        }
-
-        producto.get().getCategorias().add(categoria.get());
-        productoRepository.save(producto.get());
-        return true;
+        // Pendiente turno 2 (Mati): si add() devuelve false la categoría ya estaba → RecursoDuplicadoException (409).
+        producto.getCategorias().add(categoria);
+        productoRepository.save(producto);
     }
 
-    public boolean desasociarCategoria(Long productoId, Long categoriaId) {
-        Optional<Producto> producto = productoRepository.findById(productoId);
-        Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
+    public void desasociarCategoria(Long productoId, Long categoriaId) {
+        Producto producto = buscarActivo(productoId);
+        Categoria categoria = buscarCategoria(categoriaId);
 
-        if (producto.isEmpty() || categoria.isEmpty()) {
-            return false;
+        if (!producto.getCategorias().remove(categoria)) {
+            throw new RecursoNoEncontradoException(
+                    "La categoría " + categoriaId + " no está asociada al producto " + productoId);
         }
-
-        producto.get().getCategorias().remove(categoria.get());
-        productoRepository.save(producto.get());
-        return true;
+        productoRepository.save(producto);
     }
 
     private Producto buscarActivo(Long id) {
         return productoRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Producto " + id + " no encontrado"));
+    }
+
+    private Categoria buscarCategoria(Long id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Categoría " + id + " no encontrada"));
     }
 
     // clubId null = producto sin club. Un id que no existe es un error: antes quedaba sin club sin avisar.

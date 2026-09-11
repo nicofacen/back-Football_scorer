@@ -65,17 +65,13 @@ public class ProductoController {
 
     @PostMapping("/{productoId}/categorias/{categoriaId}")
     public ResponseEntity<Void> asociarCategoria(@PathVariable Long productoId, @PathVariable Long categoriaId) {
-        if (!productoService.asociarCategoria(productoId, categoriaId)) {
-            return ResponseEntity.notFound().build();
-        }
+        productoService.asociarCategoria(productoId, categoriaId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{productoId}/categorias/{categoriaId}")
     public ResponseEntity<Void> desasociarCategoria(@PathVariable Long productoId, @PathVariable Long categoriaId) {
-        if (!productoService.desasociarCategoria(productoId, categoriaId)) {
-            return ResponseEntity.notFound().build();
-        }
+        productoService.desasociarCategoria(productoId, categoriaId);
         return ResponseEntity.noContent().build();
     }
 

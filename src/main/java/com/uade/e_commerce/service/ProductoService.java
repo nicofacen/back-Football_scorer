@@ -8,6 +8,7 @@ import com.uade.e_commerce.dto.ClubResponse;
 import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
 import com.uade.e_commerce.exception.RecursoNoEncontradoException;
+import com.uade.e_commerce.exception.SolicitudInvalidaException;
 import com.uade.e_commerce.model.Categoria;
 import com.uade.e_commerce.model.Club;
 import com.uade.e_commerce.model.Producto;
@@ -87,6 +88,24 @@ public class ProductoService {
         Producto producto = buscarActivo(id);
         producto.setStock(stock);
         return toResponse(productoRepository.save(producto));
+    }
+
+    // Lo llama OrdenService.crearDesdeCarrito() (turno 6) dentro de su @Transactional.
+    // Valida y descuenta en el mismo método, y LANZA en vez de devolver false:
+    // la excepción es lo que dispara el rollback de los items que ya se descontaron.
+    public void descontarStock(Long id, int cantidad) {
+        if (cantidad <= 0) {
+            throw new SolicitudInvalidaException("La cantidad a descontar debe ser mayor a 0");
+        }
+
+        Producto producto = buscarActivo(id);
+        if (producto.getStock() < cantidad) {
+            throw new SolicitudInvalidaException("Stock insuficiente para " + producto.getNombre()
+                    + ": disponible " + producto.getStock() + ", pedido " + cantidad);
+        }
+
+        producto.setStock(producto.getStock() - cantidad);
+        productoRepository.save(producto);
     }
 
     public void asociarCategoria(Long productoId, Long categoriaId) {

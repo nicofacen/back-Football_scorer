@@ -16,6 +16,8 @@ import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
 import com.uade.e_commerce.service.ProductoService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 
@@ -41,34 +43,23 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductoResponse> obtenerPorId(@PathVariable Long id) {
-        return productoService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(productoService.obtenerPorId(id));
     }
 
     @PostMapping()
-    public ResponseEntity<ProductoResponse> crear(@RequestBody ProductoRequest request) {
-        return productoService.crear(request)
-                .map(producto -> ResponseEntity.status(HttpStatus.CREATED).body(producto))
-                .orElse(ResponseEntity.badRequest().build());
+    public ResponseEntity<ProductoResponse> crear(@Valid @RequestBody ProductoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crear(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponse> actualizar(@PathVariable Long id,
-                                                       @RequestBody ProductoRequest request) {
-        if (!productoService.esValido(request)) {
-            return ResponseEntity.badRequest().build();
-        }
-        return productoService.actualizar(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                                                       @Valid @RequestBody ProductoRequest request) {
+        return ResponseEntity.ok(productoService.actualizar(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        if (!productoService.eliminar(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        productoService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 

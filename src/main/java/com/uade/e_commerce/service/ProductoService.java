@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.uade.e_commerce.dto.ClubResponse;
 import com.uade.e_commerce.dto.ProductoRequest;
 import com.uade.e_commerce.dto.ProductoResponse;
+import com.uade.e_commerce.exception.RecursoNoEncontradoException;
 import com.uade.e_commerce.model.Categoria;
 import com.uade.e_commerce.model.Club;
 import com.uade.e_commerce.model.Producto;
@@ -48,17 +49,11 @@ public class ProductoService {
                 .toList();
     }
 
-    public Optional<ProductoResponse> obtenerPorId(Long id) {
-        return productoRepository.findById(id)
-                .filter(Producto::getActivo)
-                .map(this::toResponse);
+    public ProductoResponse obtenerPorId(Long id) {
+        return toResponse(buscarActivo(id));
     }
 
-    public Optional<ProductoResponse> crear(ProductoRequest request) {
-        if (!esValido(request)) {
-            return Optional.empty();
-        }
-
+    public ProductoResponse crear(ProductoRequest request) {
         Producto producto = new Producto();
         producto.setNombre(request.getNombre());
         producto.setDescripcion(request.getDescripcion());
@@ -66,49 +61,27 @@ public class ProductoService {
         producto.setStock(request.getStock());
         producto.setImagenUrl(request.getImagenUrl());
         producto.setActivo(true);
-        if (request.getClubId() != null) {
-            producto.setClub(clubRepository.findById(request.getClubId()).orElse(null));
-        }
+        producto.setClub(buscarClub(request.getClubId()));
 
-        return Optional.of(toResponse(productoRepository.save(producto)));
+        return toResponse(productoRepository.save(producto));
     }
 
-    public Optional<ProductoResponse> actualizar(Long id, ProductoRequest datos) {
-        return productoRepository.findById(id)
-                .filter(Producto::getActivo)
-                .map(producto -> {
-                    producto.setNombre(datos.getNombre());
-                    producto.setDescripcion(datos.getDescripcion());
-                    producto.setPrecio(datos.getPrecio());
-                    producto.setStock(datos.getStock());
-                    producto.setImagenUrl(datos.getImagenUrl());
-                    producto.setClub(datos.getClubId() == null
-                            ? null
-                            : clubRepository.findById(datos.getClubId()).orElse(null));
-                    return productoRepository.save(producto);
-                })
-                .map(this::toResponse);
+    public ProductoResponse actualizar(Long id, ProductoRequest datos) {
+        Producto producto = buscarActivo(id);
+        producto.setNombre(datos.getNombre());
+        producto.setDescripcion(datos.getDescripcion());
+        producto.setPrecio(datos.getPrecio());
+        producto.setStock(datos.getStock());
+        producto.setImagenUrl(datos.getImagenUrl());
+        producto.setClub(buscarClub(datos.getClubId()));
+
+        return toResponse(productoRepository.save(producto));
     }
 
-    public boolean eliminar(Long id) {
-        return productoRepository.findById(id)
-                .filter(Producto::getActivo)
-                .map(producto -> {
-                    producto.setActivo(false);
-                    productoRepository.save(producto);
-                    return true;
-                })
-                .orElse(false);
-    }
-
-    public boolean esValido(ProductoRequest request) {
-        return request.getNombre() != null
-                && !request.getNombre().isBlank()
-                && request.getPrecio() != null
-                && request.getPrecio() > 0
-                && request.getStock() != null
-                && request.getStock() >= 0
-                && (request.getClubId() == null || clubRepository.existsById(request.getClubId()));
+    public void eliminar(Long id) {
+        Producto producto = buscarActivo(id);
+        producto.setActivo(false);
+        productoRepository.save(producto);
     }
 
     public boolean asociarCategoria(Long productoId, Long categoriaId) {
@@ -135,6 +108,20 @@ public class ProductoService {
         producto.get().getCategorias().remove(categoria.get());
         productoRepository.save(producto.get());
         return true;
+    }
+
+    private Producto buscarActivo(Long id) {
+        return productoRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Producto " + id + " no encontrado"));
+    }
+
+    // clubId null = producto sin club. Un id que no existe es un error: antes quedaba sin club sin avisar.
+    private Club buscarClub(Long clubId) {
+        if (clubId == null) {
+            return null;
+        }
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Club " + clubId + " no encontrado"));
     }
 
     private ProductoResponse toResponse(Producto producto) {

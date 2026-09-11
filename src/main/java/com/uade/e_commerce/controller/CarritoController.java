@@ -16,6 +16,8 @@ import com.uade.e_commerce.dto.AgregarItemRequest;
 import com.uade.e_commerce.dto.CarritoResponse;
 import com.uade.e_commerce.service.CarritoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/carritos")
 public class CarritoController {
@@ -33,7 +35,7 @@ public class CarritoController {
 
     @PostMapping("/{usuarioId}/items")
     public ResponseEntity<CarritoResponse> agregarItem(@PathVariable Long usuarioId,
-                                                         @RequestBody AgregarItemRequest request) {
+                                                         @Valid @RequestBody AgregarItemRequest request) {
         CarritoResponse response = carritoService.agregarItem(usuarioId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -41,7 +43,7 @@ public class CarritoController {
     @PutMapping("/{usuarioId}/items/{itemId}")
     public ResponseEntity<CarritoResponse> actualizarCantidad(@PathVariable Long usuarioId,
                                                                 @PathVariable Long itemId,
-                                                                @RequestBody ActualizarCantidadRequest request) {
+                                                                @Valid @RequestBody ActualizarCantidadRequest request) {
         return ResponseEntity.ok(carritoService.actualizarCantidad(usuarioId, itemId, request));
     }
 

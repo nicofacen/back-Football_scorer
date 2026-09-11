@@ -21,6 +21,8 @@ import com.uade.e_commerce.repository.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
 
+// La cantidad > 0 la valida @Valid en el controller. Acá quedan las reglas que
+// necesitan la base: que el usuario y el producto existan y que alcance el stock.
 @Service
 @Transactional
 public class CarritoService {
@@ -37,21 +39,23 @@ public class CarritoService {
     }
 
     public CarritoResponse obtenerCarrito(Long usuarioId) {
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no tiene carrito"));
-        return toResponse(carrito);
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new RecursoNoEncontradoException("Usuario " + usuarioId + " no encontrado");
+        }
+
+        // El carrito se crea recién con el primer item: un usuario que no agregó nada tiene el carrito vacío.
+        return carritoRepository.findByUsuarioId(usuarioId)
+                .map(this::toResponse)
+                .orElse(new CarritoResponse(null, usuarioId, List.of(), 0.0));
     }
 
     public CarritoResponse agregarItem(Long usuarioId, AgregarItemRequest request) {
-        if (request.getCantidad() == null || request.getCantidad() <= 0) {
-            throw new SolicitudInvalidaException("La cantidad debe ser mayor a 0");
-        }
-
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario " + usuarioId + " no encontrado"));
 
-        Producto producto = productoRepository.findById(request.getProductoId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
+        Producto producto = productoRepository.findByIdAndActivoTrue(request.getProductoId())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "Producto " + request.getProductoId() + " no encontrado"));
 
         Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
                 .orElseGet(() -> {
@@ -67,9 +71,7 @@ public class CarritoService {
         int cantidadActual = itemExistente.map(ItemCarrito::getCantidad).orElse(0);
         int cantidadTotal = cantidadActual + request.getCantidad();
 
-        if (cantidadTotal > producto.getStock()) {
-            throw new SolicitudInvalidaException("No hay stock suficiente");
-        }
+        validarStock(producto, cantidadTotal);
 
         if (itemExistente.isPresent()) {
             itemExistente.get().setCantidad(cantidadTotal);
@@ -86,18 +88,10 @@ public class CarritoService {
     }
 
     public CarritoResponse actualizarCantidad(Long usuarioId, Long itemId, ActualizarCantidadRequest request) {
-        if (request.getCantidad() == null || request.getCantidad() <= 0) {
-            throw new SolicitudInvalidaException("La cantidad debe ser mayor a 0");
-        }
-
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no tiene carrito"));
-
+        Carrito carrito = buscarCarrito(usuarioId);
         ItemCarrito item = buscarItemDelCarrito(carrito, itemId);
 
-        if (request.getCantidad() > item.getProducto().getStock()) {
-            throw new SolicitudInvalidaException("No hay stock suficiente");
-        }
+        validarStock(item.getProducto(), request.getCantidad());
 
         item.setCantidad(request.getCantidad());
         Carrito guardado = carritoRepository.save(carrito);
@@ -105,9 +99,7 @@ public class CarritoService {
     }
 
     public void eliminarItem(Long usuarioId, Long itemId) {
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no tiene carrito"));
-
+        Carrito carrito = buscarCarrito(usuarioId);
         ItemCarrito item = buscarItemDelCarrito(carrito, itemId);
 
         carrito.getItems().remove(item);
@@ -115,18 +107,31 @@ public class CarritoService {
     }
 
     public void vaciarCarrito(Long usuarioId) {
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no tiene carrito"));
+        Carrito carrito = buscarCarrito(usuarioId);
 
         carrito.getItems().clear();
         carritoRepository.save(carrito);
     }
 
+    private Carrito buscarCarrito(Long usuarioId) {
+        return carritoRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario " + usuarioId + " no tiene carrito"));
+    }
+
+    // Stream en memoria sobre los items de UN carrito ya cargado, no sobre toda la tabla.
     private ItemCarrito buscarItemDelCarrito(Carrito carrito, Long itemId) {
         return carrito.getItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new RecursoNoEncontradoException("El item no pertenece a este carrito"));
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "El item " + itemId + " no pertenece a este carrito"));
+    }
+
+    private void validarStock(Producto producto, int cantidadPedida) {
+        if (cantidadPedida > producto.getStock()) {
+            throw new SolicitudInvalidaException("Stock insuficiente para " + producto.getNombre()
+                    + ": disponible " + producto.getStock() + ", pedido " + cantidadPedida);
+        }
     }
 
     private CarritoResponse toResponse(Carrito carrito) {

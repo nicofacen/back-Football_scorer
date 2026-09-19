@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.e_commerce.dto.ClubRequest;
 import com.uade.e_commerce.dto.ClubResponse;
 import com.uade.e_commerce.service.ClubService;
+
+import jakarta.validation.Valid;
 
 // http://localhost:8080/api/clubes
 @RestController
@@ -29,43 +32,29 @@ public class ClubController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<ClubResponse>> listar() {
-        return ResponseEntity.ok(clubService.listar());
+    public ResponseEntity<List<ClubResponse>> listar(@RequestParam(required = false) String pais) {
+        return ResponseEntity.ok(clubService.listar(pais));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClubResponse> obtenerPorId(@PathVariable Long id) {
-        return clubService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(clubService.obtenerPorId(id));
     }
 
     @PostMapping()
-    public ResponseEntity<ClubResponse> crear(@RequestBody ClubRequest request) {
-        return clubService.crear(request)
-                .map(club -> ResponseEntity.status(HttpStatus.CREATED).body(club))
-                .orElse(ResponseEntity.badRequest().build());
+    public ResponseEntity<ClubResponse> crear(@Valid @RequestBody ClubRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(clubService.crear(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClubResponse> actualizar(@PathVariable Long id,
-                                                     @RequestBody ClubRequest request) {
-        if (!clubService.esValido(request)) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (clubService.nombreDuplicado(id, request.getNombre())) {
-            return ResponseEntity.badRequest().build();
-        }
-        return clubService.actualizar(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                                                     @Valid @RequestBody ClubRequest request) {
+        return ResponseEntity.ok(clubService.actualizar(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        if (!clubService.eliminar(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        clubService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 

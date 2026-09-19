@@ -1,12 +1,13 @@
 package com.uade.e_commerce.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.uade.e_commerce.dto.CategoriaRequest;
 import com.uade.e_commerce.dto.CategoriaResponse;
+import com.uade.e_commerce.exception.RecursoDuplicadoException;
+import com.uade.e_commerce.exception.RecursoNoEncontradoException;
 import com.uade.e_commerce.model.Categoria;
 import com.uade.e_commerce.repository.CategoriaRepository;
 
@@ -29,47 +30,42 @@ public class CategoriaService {
                 .toList();
     }
 
-    public Optional<CategoriaResponse> obtenerPorId(Long id) {
-        return categoriaRepository.findById(id)
-                .map(this::toResponse);
+    public CategoriaResponse obtenerPorId(Long id) {
+        return toResponse(buscar(id));
     }
 
-    public Optional<CategoriaResponse> crear(CategoriaRequest request) {
-        if (!esValido(request) || categoriaRepository.existsByNombre(request.getNombre())) {
-            return Optional.empty();
+    public CategoriaResponse crear(CategoriaRequest request) {
+        if (categoriaRepository.existsByNombre(request.getNombre())) {
+            throw new RecursoDuplicadoException("Ya existe una categoría con el nombre " + request.getNombre());
         }
 
         Categoria categoria = new Categoria();
         categoria.setNombre(request.getNombre());
         categoria.setDescripcion(request.getDescripcion());
 
-        return Optional.of(toResponse(categoriaRepository.save(categoria)));
+        return toResponse(categoriaRepository.save(categoria));
     }
 
-    public Optional<CategoriaResponse> actualizar(Long id, CategoriaRequest datos) {
-        return categoriaRepository.findById(id)
-                .map(categoria -> {
-                    categoria.setNombre(datos.getNombre());
-                    categoria.setDescripcion(datos.getDescripcion());
-                    return categoriaRepository.save(categoria);
-                })
-                .map(this::toResponse);
-    }
-
-    public boolean eliminar(Long id) {
-        if (!categoriaRepository.existsById(id)) {
-            return false;
+    public CategoriaResponse actualizar(Long id, CategoriaRequest datos) {
+        Categoria categoria = buscar(id);
+        if (categoriaRepository.existsByNombreAndIdNot(datos.getNombre(), id)) {
+            throw new RecursoDuplicadoException("Ya existe una categoría con el nombre " + datos.getNombre());
         }
-        categoriaRepository.deleteById(id);
-        return true;
+
+        categoria.setNombre(datos.getNombre());
+        categoria.setDescripcion(datos.getDescripcion());
+
+        return toResponse(categoriaRepository.save(categoria));
     }
 
-    public boolean esValido(CategoriaRequest request) {
-        return request.getNombre() != null && !request.getNombre().isBlank();
+    public void eliminar(Long id) {
+        Categoria categoria = buscar(id);
+        categoriaRepository.delete(categoria);
     }
 
-    public boolean nombreDuplicado(Long id, String nombre) {
-        return categoriaRepository.existsByNombreAndIdNot(nombre, id);
+    private Categoria buscar(Long id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Categoría " + id + " no encontrada"));
     }
 
     private CategoriaResponse toResponse(Categoria categoria) {

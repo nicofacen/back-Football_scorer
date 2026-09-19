@@ -17,6 +17,8 @@ import com.uade.e_commerce.dto.CategoriaRequest;
 import com.uade.e_commerce.dto.CategoriaResponse;
 import com.uade.e_commerce.service.CategoriaService;
 
+import jakarta.validation.Valid;
+
 // http://localhost:8080/api/categorias
 @RestController
 @RequestMapping("/api/categorias")
@@ -35,37 +37,23 @@ public class CategoriaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> obtenerPorId(@PathVariable Long id) {
-        return categoriaService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(categoriaService.obtenerPorId(id));
     }
 
     @PostMapping()
-    public ResponseEntity<CategoriaResponse> crear(@RequestBody CategoriaRequest request) {
-        return categoriaService.crear(request)
-                .map(categoria -> ResponseEntity.status(HttpStatus.CREATED).body(categoria))
-                .orElse(ResponseEntity.badRequest().build());
+    public ResponseEntity<CategoriaResponse> crear(@Valid @RequestBody CategoriaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.crear(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> actualizar(@PathVariable Long id,
-                                                          @RequestBody CategoriaRequest request) {
-        if (!categoriaService.esValido(request)) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (categoriaService.nombreDuplicado(id, request.getNombre())) {
-            return ResponseEntity.badRequest().build();
-        }
-        return categoriaService.actualizar(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                                                          @Valid @RequestBody CategoriaRequest request) {
+        return ResponseEntity.ok(categoriaService.actualizar(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        if (!categoriaService.eliminar(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        categoriaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 

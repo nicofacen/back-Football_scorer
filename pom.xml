@@ -69,12 +69,11 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Turno JWT (Nicolas): solo el core de Spring Security, sin -web ni -config
-		     para no disparar el auto-lockdown de Spring Boot antes de que Kiki agregue
-		     spring-boot-starter-security con su SecurityConfig. -->
+		<!-- Turno JWT (Kiki): starter completo, ya con SecurityConfig cargado no hace
+		     falta cuidarse del auto-lockdown que mencionaba Nicolas. -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

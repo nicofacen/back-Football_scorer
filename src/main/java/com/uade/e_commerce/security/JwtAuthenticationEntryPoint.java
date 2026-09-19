@@ -9,7 +9,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uade.e_commerce.dto.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,14 +18,13 @@ import jakarta.servlet.http.HttpServletResponse;
 // vencido, el JwtAuthenticationFilter deja pasar sin autenticar y esto es lo que
 // responde cuando el endpoint exigia estar autenticado. El @RestControllerAdvice de
 // Mati NO ve esto: pasa en la cadena de filtros, antes del DispatcherServlet.
+//
+// El JSON se arma a mano (sin ObjectMapper) para no depender de que version de
+// Jackson termine wireada como bean: este proyecto corre con Jackson 3
+// (tools.jackson.*) via spring-boot-starter-jackson, mientras que jjwt-jackson
+// trae com.fasterxml.jackson.databind 2.x solo como dependencia runtime propia.
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-    private final ObjectMapper objectMapper;
-
-    public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -41,7 +39,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(error));
+        response.getWriter().write(JsonError.serializar(error));
     }
 
 }

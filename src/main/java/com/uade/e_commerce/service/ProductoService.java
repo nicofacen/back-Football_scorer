@@ -1,6 +1,8 @@
 package com.uade.e_commerce.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
@@ -38,15 +40,34 @@ public class ProductoService {
     }
 
     public List<ProductoResponse> buscar(String nombre, Long clubId, Long categoriaId, Double precioMax) {
-        return productoRepository.findByActivoTrue()
+        return seleccionarBusqueda(nombre, clubId, categoriaId, precioMax)
                 .stream()
-                .filter(p -> nombre == null || p.getNombre().toLowerCase().contains(nombre.toLowerCase()))
-                .filter(p -> clubId == null || (p.getClub() != null && p.getClub().getId().equals(clubId)))
-                .filter(p -> categoriaId == null
-                        || p.getCategorias().stream().anyMatch(c -> c.getId().equals(categoriaId)))
-                .filter(p -> precioMax == null || p.getPrecio() <= precioMax)
                 .map(this::toResponse)
                 .toList();
+    }
+
+    // Sin filtros o con uno solo, un query method derivado alcanza y da un SQL mas simple.
+    // Con 2 o mas combinados hace falta el @Query de ProductoRepository.buscar(): armar un
+    // query method por combinacion escalaria a 2^4 = 16 metodos.
+    private List<Producto> seleccionarBusqueda(String nombre, Long clubId, Long categoriaId, Double precioMax) {
+        long filtrosActivos = Stream.of(nombre, clubId, categoriaId, precioMax).filter(Objects::nonNull).count();
+
+        if (filtrosActivos == 0) {
+            return productoRepository.findByActivoTrue();
+        }
+        if (filtrosActivos > 1) {
+            return productoRepository.buscar(nombre, clubId, categoriaId, precioMax);
+        }
+        if (nombre != null) {
+            return productoRepository.findByActivoTrueAndNombreContainingIgnoreCase(nombre);
+        }
+        if (clubId != null) {
+            return productoRepository.findByActivoTrueAndClubId(clubId);
+        }
+        if (categoriaId != null) {
+            return productoRepository.findByActivoTrueAndCategoriasId(categoriaId);
+        }
+        return productoRepository.findByActivoTrueAndPrecioLessThanEqual(precioMax);
     }
 
     public ProductoResponse obtenerPorId(Long id) {

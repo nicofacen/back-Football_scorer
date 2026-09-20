@@ -23,6 +23,9 @@ import jakarta.transaction.Transactional;
 
 // La cantidad > 0 la valida @Valid en el controller. Acá quedan las reglas que
 // necesitan la base: que el usuario y el producto existan y que alcance el stock.
+//
+// El usuario llega como email (el "sub" del JWT) desde el controller: el service
+// no sabe nada de Spring Security, solo recibe un String y busca con él.
 @Service
 @Transactional
 public class CarritoService {
@@ -38,26 +41,23 @@ public class CarritoService {
         this.productoRepository = productoRepository;
     }
 
-    public CarritoResponse obtenerCarrito(Long usuarioId) {
-        if (!usuarioRepository.existsById(usuarioId)) {
-            throw new RecursoNoEncontradoException("Usuario " + usuarioId + " no encontrado");
-        }
+    public CarritoResponse obtenerCarrito(String email) {
+        Usuario usuario = buscarUsuario(email);
 
         // El carrito se crea recién con el primer item: un usuario que no agregó nada tiene el carrito vacío.
-        return carritoRepository.findByUsuarioId(usuarioId)
+        return carritoRepository.findByUsuarioEmail(email)
                 .map(this::toResponse)
-                .orElse(new CarritoResponse(null, usuarioId, List.of(), 0.0));
+                .orElse(new CarritoResponse(null, usuario.getId(), List.of(), 0.0));
     }
 
-    public CarritoResponse agregarItem(Long usuarioId, AgregarItemRequest request) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario " + usuarioId + " no encontrado"));
+    public CarritoResponse agregarItem(String email, AgregarItemRequest request) {
+        Usuario usuario = buscarUsuario(email);
 
         Producto producto = productoRepository.findByIdAndActivoTrue(request.getProductoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Producto " + request.getProductoId() + " no encontrado"));
 
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
+        Carrito carrito = carritoRepository.findByUsuarioEmail(email)
                 .orElseGet(() -> {
                     Carrito nuevo = new Carrito();
                     nuevo.setUsuario(usuario);
@@ -87,8 +87,8 @@ public class CarritoService {
         return toResponse(guardado);
     }
 
-    public CarritoResponse actualizarCantidad(Long usuarioId, Long itemId, ActualizarCantidadRequest request) {
-        Carrito carrito = buscarCarrito(usuarioId);
+    public CarritoResponse actualizarCantidad(String email, Long itemId, ActualizarCantidadRequest request) {
+        Carrito carrito = buscarCarrito(email);
         ItemCarrito item = buscarItemDelCarrito(carrito, itemId);
 
         validarStock(item.getProducto(), request.getCantidad());
@@ -98,24 +98,29 @@ public class CarritoService {
         return toResponse(guardado);
     }
 
-    public void eliminarItem(Long usuarioId, Long itemId) {
-        Carrito carrito = buscarCarrito(usuarioId);
+    public void eliminarItem(String email, Long itemId) {
+        Carrito carrito = buscarCarrito(email);
         ItemCarrito item = buscarItemDelCarrito(carrito, itemId);
 
         carrito.getItems().remove(item);
         carritoRepository.save(carrito);
     }
 
-    public void vaciarCarrito(Long usuarioId) {
-        Carrito carrito = buscarCarrito(usuarioId);
+    public void vaciarCarrito(String email) {
+        Carrito carrito = buscarCarrito(email);
 
         carrito.getItems().clear();
         carritoRepository.save(carrito);
     }
 
-    private Carrito buscarCarrito(Long usuarioId) {
-        return carritoRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario " + usuarioId + " no tiene carrito"));
+    private Usuario buscarUsuario(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario " + email + " no encontrado"));
+    }
+
+    private Carrito buscarCarrito(String email) {
+        return carritoRepository.findByUsuarioEmail(email)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario " + email + " no tiene carrito"));
     }
 
     // Stream en memoria sobre los items de UN carrito ya cargado, no sobre toda la tabla.

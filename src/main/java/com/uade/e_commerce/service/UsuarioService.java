@@ -1,14 +1,13 @@
 package com.uade.e_commerce.service;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.uade.e_commerce.dto.LoginRequest;
-import com.uade.e_commerce.dto.RegistroRequest;
+import com.uade.e_commerce.dto.ActualizarUsuarioRequest;
 import com.uade.e_commerce.dto.UsuarioResponse;
-import com.uade.e_commerce.exception.CredencialesInvalidasException;
-import com.uade.e_commerce.exception.RecursoDuplicadoException;
 import com.uade.e_commerce.exception.RecursoNoEncontradoException;
-import com.uade.e_commerce.model.Rol;
 import com.uade.e_commerce.model.Usuario;
 import com.uade.e_commerce.repository.UsuarioRepository;
 
@@ -24,39 +23,19 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public UsuarioResponse registrar(RegistroRequest request) {
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RecursoDuplicadoException("Ya existe un usuario con el email " + request.getEmail());
-        }
-
-        Usuario usuario = new Usuario();
-        usuario.setNombre(request.getNombre());
-        usuario.setApellido(request.getApellido());
-        usuario.setEmail(request.getEmail());
-        usuario.setPassword(request.getPassword());
-        usuario.setRol(Rol.CLIENTE);
-
-        return toResponse(usuarioRepository.save(usuario));
-    }
-
-    public UsuarioResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .filter(u -> u.getPassword().equals(request.getPassword()))
-                .orElseThrow(() -> new CredencialesInvalidasException("Email o password incorrectos"));
-
+    public UsuarioResponse obtenerPorId(Long id) {
+        Usuario usuario = buscar(id);
+        verificarPropietarioOAdmin(usuario);
         return toResponse(usuario);
     }
 
-    public UsuarioResponse obtenerPorId(Long id) {
-        return toResponse(buscar(id));
-    }
-
-    public UsuarioResponse actualizar(Long id, RegistroRequest datos) {
+    public UsuarioResponse actualizar(Long id, ActualizarUsuarioRequest datos) {
         Usuario usuario = buscar(id);
+        verificarPropietarioOAdmin(usuario);
+
         usuario.setNombre(datos.getNombre());
         usuario.setApellido(datos.getApellido());
         usuario.setEmail(datos.getEmail());
-        usuario.setPassword(datos.getPassword());
 
         return toResponse(usuarioRepository.save(usuario));
     }
@@ -64,6 +43,20 @@ public class UsuarioService {
     private Usuario buscar(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario " + id + " no encontrado"));
+    }
+
+    // GET/PUT por id son de cualquier usuario autenticado a nivel de URL (SecurityConfig
+    // no puede distinguir "el mio" de "el de otro" por patron); el chequeo de propiedad
+    // del recurso puntual va aca, en el service.
+    private void verificarPropietarioOAdmin(Usuario usuario) {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        boolean esAdmin = autenticacion.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        boolean esPropietario = autenticacion.getName().equals(usuario.getEmail());
+
+        if (!esAdmin && !esPropietario) {
+            throw new AccessDeniedException("No tenes permiso para acceder a este usuario");
+        }
     }
 
     private UsuarioResponse toResponse(Usuario usuario) {

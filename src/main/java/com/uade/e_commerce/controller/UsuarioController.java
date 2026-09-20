@@ -15,6 +15,8 @@ import com.uade.e_commerce.dto.RegistroRequest;
 import com.uade.e_commerce.dto.UsuarioResponse;
 import com.uade.e_commerce.service.UsuarioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -26,30 +28,23 @@ public class UsuarioController {
     }
 
     @PostMapping("/registro")
-    public ResponseEntity<UsuarioResponse> registrar(@RequestBody RegistroRequest request) {
-        return usuarioService.registrar(request)
-                .map(usuario -> ResponseEntity.status(HttpStatus.CREATED).body(usuario))
-                .orElse(ResponseEntity.badRequest().build());
+    public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistroRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrar(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsuarioResponse> login(@RequestBody LoginRequest request) {
-        return usuarioService.login(request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    public ResponseEntity<UsuarioResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(usuarioService.login(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable Long id) {
-        return usuarioService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> actualizarUsuario(@PathVariable Long id, @RequestBody RegistroRequest request) {
-        return usuarioService.actualizar(id, request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UsuarioResponse> actualizarUsuario(@PathVariable Long id,
+                                                              @Valid @RequestBody RegistroRequest request) {
+        return ResponseEntity.ok(usuarioService.actualizar(id, request));
     }
 }

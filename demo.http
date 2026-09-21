@@ -1,1029 +1,255 @@
-### ========================================
-### E-COMMERCE DE FUTBOL
-### ========================================
-### IMPORTANTE:
-### - La configuracion actual usa H2 en memoria.
-### - Si reinicias el backend, la base vuelve a quedar vacia.
-### - Ejecutar este archivo DESDE ARRIBA HACIA ABAJO.
-### - Ejecutar cada POST de creacion UNA SOLA VEZ por arranque.
-### - Los IDs usados abajo suponen una base vacia al comenzar.
+@baseUrl = http://localhost:8080
 
-
-### ========================================
-### CLUBES
-### ========================================
-
-### Crear club 1 - Boca Juniors
+### ==========================================
+### 0 - REGISTRO DE CLIENTE
+### Ejecutar una vez luego de reiniciar la app
 ### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
+### ==========================================
+
+POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-  "nombre": "Boca Juniors",
-  "pais": "Argentina",
-  "escudoUrl": "https://ejemplo.com/boca.png"
-}
-
-###
-
-### Crear club 2 - River Plate
-### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "River Plate",
-  "pais": "Argentina",
-  "escudoUrl": "https://ejemplo.com/river.png"
-}
-
-###
-
-### Crear club 3 - Argentina
-### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "Argentina",
-  "pais": "Argentina",
-  "escudoUrl": "https://ejemplo.com/argentina.png"
-}
-
-###
-
-### Crear club 4 - Barcelona
-### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "Barcelona",
-  "pais": "Espana",
-  "escudoUrl": "https://ejemplo.com/barcelona.png"
-}
-
-###
-
-### Crear club 5 - Real Madrid
-### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "Real Madrid",
-  "pais": "Espana",
-  "escudoUrl": "https://ejemplo.com/real-madrid.png"
-}
-
-###
-
-### Crear club temporal para probar PUT y DELETE
-### Deberia quedar con id 6
-### Esperado: 201 Created
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "Club Temporal",
-  "pais": "Argentina",
-  "escudoUrl": "https://ejemplo.com/temporal.png"
-}
-
-###
-
-### Listar clubes
-### Esperado: 200 OK
-GET http://localhost:8080/api/clubes
-
-###
-
-### Buscar Boca por ID
-### Esperado: 200 OK
-GET http://localhost:8080/api/clubes/1
-
-###
-
-### Modificar club temporal
-### Esperado: 200 OK
-PUT http://localhost:8080/api/clubes/6
-Content-Type: application/json
-
-{
-  "nombre": "Club Temporal Actualizado",
-  "pais": "Uruguay",
-  "escudoUrl": "https://ejemplo.com/temporal-actualizado.png"
-}
-
-###
-
-### Eliminar club temporal
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/clubes/6
-
-###
-
-### Buscar club eliminado
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/clubes/6
-
-###
-
-### Intentar crear Boca otra vez
-### Esperado: 400 Bad Request porque el nombre de Club es unico
-POST http://localhost:8080/api/clubes
-Content-Type: application/json
-
-{
-  "nombre": "Boca Juniors",
-  "pais": "Argentina",
-  "escudoUrl": "https://ejemplo.com/boca-duplicado.png"
-}
-
-
-### ========================================
-### CATEGORIAS
-### ========================================
-
-### Crear categoria 1 - Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Camisetas",
-  "descripcion": "Camisetas de clubes y selecciones"
-}
-
-###
-
-### Crear categoria 2 - Botines
-### Esperado: 201 Created
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Botines",
-  "descripcion": "Botines de futbol"
-}
-
-###
-
-### Crear categoria 3 - Pelotas
-### Esperado: 201 Created
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Pelotas",
-  "descripcion": "Pelotas de futbol"
-}
-
-###
-
-### Crear categoria 4 - Accesorios
-### Esperado: 201 Created
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Accesorios",
-  "descripcion": "Accesorios de futbol"
-}
-
-###
-
-### Crear categoria temporal para probar PUT y DELETE
-### Deberia quedar con id 5
-### Esperado: 201 Created
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Temporal",
-  "descripcion": "Categoria temporal para pruebas"
-}
-
-###
-
-### Listar categorias
-### Esperado: 200 OK
-GET http://localhost:8080/api/categorias
-
-###
-
-### Buscar Camisetas por ID
-### Esperado: 200 OK
-GET http://localhost:8080/api/categorias/1
-
-###
-
-### Modificar categoria temporal
-### Esperado: 200 OK
-PUT http://localhost:8080/api/categorias/5
-Content-Type: application/json
-
-{
-  "nombre": "Temporal Actualizada",
-  "descripcion": "Categoria temporal actualizada"
-}
-
-###
-
-### Eliminar categoria temporal
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/categorias/5
-
-###
-
-### Buscar categoria eliminada
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/categorias/5
-
-###
-
-### Intentar crear Camisetas otra vez
-### Esperado: 400 Bad Request porque el nombre de Categoria es unico
-POST http://localhost:8080/api/categorias
-Content-Type: application/json
-
-{
-  "nombre": "Camisetas",
-  "descripcion": "Duplicada"
-}
-
-
-### ========================================
-### PRODUCTOS - SEED DATA
-### 15 productos
-### ========================================
-
-### Crear producto 1 - Camiseta Boca
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Boca Juniors",
-  "descripcion": "Camiseta titular de Boca Juniors",
-  "precio": 75000,
-  "stock": 10,
-  "imagenUrl": "https://ejemplo.com/camiseta-boca.png",
-  "clubId": 1
-}
-
-###
-
-### Crear producto 2 - Camiseta River
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta River Plate",
-  "descripcion": "Camiseta titular de River Plate",
-  "precio": 80000,
-  "stock": 8,
-  "imagenUrl": "https://ejemplo.com/camiseta-river.png",
-  "clubId": 2
-}
-
-###
-
-### Crear producto 3 - Camiseta Argentina
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Argentina",
-  "descripcion": "Camiseta titular de la Seleccion Argentina",
-  "precio": 90000,
-  "stock": 15,
-  "imagenUrl": "https://ejemplo.com/camiseta-argentina.png",
-  "clubId": 3
-}
-
-###
-
-### Crear producto 4 - Camiseta Barcelona
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Barcelona",
-  "descripcion": "Camiseta titular de Barcelona",
-  "precio": 95000,
-  "stock": 7,
-  "imagenUrl": "https://ejemplo.com/camiseta-barcelona.png",
-  "clubId": 4
-}
-
-###
-
-### Crear producto 5 - Camiseta Real Madrid
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Real Madrid",
-  "descripcion": "Camiseta titular de Real Madrid",
-  "precio": 98000,
-  "stock": 6,
-  "imagenUrl": "https://ejemplo.com/camiseta-real-madrid.png",
-  "clubId": 5
-}
-
-###
-
-### Crear producto 6 - Botines Boca
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Botines Boca",
-  "descripcion": "Botines de futbol edicion Boca",
-  "precio": 120000,
-  "stock": 5,
-  "imagenUrl": "https://ejemplo.com/botines-boca.png",
-  "clubId": 1
-}
-
-###
-
-### Crear producto 7 - Botines River
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Botines River",
-  "descripcion": "Botines de futbol edicion River",
-  "precio": 118000,
-  "stock": 4,
-  "imagenUrl": "https://ejemplo.com/botines-river.png",
-  "clubId": 2
-}
-
-###
-
-### Crear producto 8 - Pelota Argentina
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Pelota Argentina",
-  "descripcion": "Pelota de futbol de Argentina",
-  "precio": 45000,
-  "stock": 20,
-  "imagenUrl": "https://ejemplo.com/pelota-argentina.png",
-  "clubId": 3
-}
-
-###
-
-### Crear producto 9 - Pelota Barcelona
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Pelota Barcelona",
-  "descripcion": "Pelota de futbol de Barcelona",
-  "precio": 47000,
-  "stock": 12,
-  "imagenUrl": "https://ejemplo.com/pelota-barcelona.png",
-  "clubId": 4
-}
-
-###
-
-### Crear producto 10 - Bufanda Real Madrid
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Bufanda Real Madrid",
-  "descripcion": "Bufanda oficial Real Madrid",
-  "precio": 30000,
-  "stock": 18,
-  "imagenUrl": "https://ejemplo.com/bufanda-real-madrid.png",
-  "clubId": 5
-}
-
-###
-
-### Crear producto 11 - Gorra Boca
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Gorra Boca Juniors",
-  "descripcion": "Gorra de Boca Juniors",
-  "precio": 28000,
-  "stock": 14,
-  "imagenUrl": "https://ejemplo.com/gorra-boca.png",
-  "clubId": 1
-}
-
-###
-
-### Crear producto 12 - Mochila River
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Mochila River Plate",
-  "descripcion": "Mochila de River Plate",
-  "precio": 42000,
-  "stock": 9,
-  "imagenUrl": "https://ejemplo.com/mochila-river.png",
-  "clubId": 2
-}
-
-###
-
-### Crear producto 13 - Camiseta Argentina suplente
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Argentina Suplente",
-  "descripcion": "Camiseta suplente de la Seleccion Argentina",
-  "precio": 88000,
-  "stock": 11,
-  "imagenUrl": "https://ejemplo.com/camiseta-argentina-suplente.png",
-  "clubId": 3
-}
-
-###
-
-### Crear producto 14 - Camiseta Barcelona suplente
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Barcelona Suplente",
-  "descripcion": "Camiseta suplente de Barcelona",
-  "precio": 92000,
-  "stock": 6,
-  "imagenUrl": "https://ejemplo.com/camiseta-barcelona-suplente.png",
-  "clubId": 4
-}
-
-###
-
-### Crear producto 15 - Camiseta Real Madrid suplente
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Camiseta Real Madrid Suplente",
-  "descripcion": "Camiseta suplente de Real Madrid",
-  "precio": 94000,
-  "stock": 5,
-  "imagenUrl": "https://ejemplo.com/camiseta-real-madrid-suplente.png",
-  "clubId": 5
-}
-
-###
-
-### Crear producto temporal para probar PUT, DELETE y desasociacion
-### Deberia quedar con id 16
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Producto Temporal",
-  "descripcion": "Producto para pruebas de modificacion y baja logica",
-  "precio": 10000,
-  "stock": 2,
-  "imagenUrl": "https://ejemplo.com/producto-temporal.png",
-  "clubId": 1
-}
-
-
-### ========================================
-### PRODUCTOS - ASOCIAR CATEGORIAS
-### Categoria 1 = Camisetas
-### Categoria 2 = Botines
-### Categoria 3 = Pelotas
-### Categoria 4 = Accesorios
-### ========================================
-
-### Producto 1 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/1/categorias/1
-
-###
-
-### Producto 2 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/2/categorias/1
-
-###
-
-### Producto 3 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/3/categorias/1
-
-###
-
-### Producto 4 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/4/categorias/1
-
-###
-
-### Producto 5 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/5/categorias/1
-
-###
-
-### Producto 6 -> Botines
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/6/categorias/2
-
-###
-
-### Producto 7 -> Botines
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/7/categorias/2
-
-###
-
-### Producto 8 -> Pelotas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/8/categorias/3
-
-###
-
-### Producto 9 -> Pelotas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/9/categorias/3
-
-###
-
-### Producto 10 -> Accesorios
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/10/categorias/4
-
-###
-
-### Producto 11 -> Accesorios
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/11/categorias/4
-
-###
-
-### Producto 12 -> Accesorios
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/12/categorias/4
-
-###
-
-### Producto 13 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/13/categorias/1
-
-###
-
-### Producto 14 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/14/categorias/1
-
-###
-
-### Producto 15 -> Camisetas
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/15/categorias/1
-
-###
-
-### Producto temporal 16 -> Accesorios
-### Esperado: 201 Created
-POST http://localhost:8080/api/productos/16/categorias/4
-
-
-### ========================================
-### PRODUCTOS - CONSULTAS Y FILTROS
-### ========================================
-
-### Listar todos los productos activos
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos
-
-###
-
-### Buscar producto por ID
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos/1
-
-###
-
-### Filtrar productos por nombre
-### Esperado: 200 OK - productos cuyo nombre contiene Boca
-GET http://localhost:8080/api/productos?nombre=Boca
-
-###
-
-### Filtrar productos por club
-### Esperado: 200 OK - productos de Boca, club id 1
-GET http://localhost:8080/api/productos?clubId=1
-
-###
-
-### Filtrar productos por categoria
-### Esperado: 200 OK - productos de Camisetas, categoria id 1
-GET http://localhost:8080/api/productos?categoriaId=1
-
-###
-
-### Filtrar productos por precio maximo
-### Esperado: 200 OK - productos de hasta 50000
-GET http://localhost:8080/api/productos?precioMax=50000
-
-###
-
-### Combinar filtros: Boca y precio maximo 80000
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos?clubId=1&precioMax=80000
-
-
-### ========================================
-### PRODUCTOS - PUT, DESASOCIAR Y DELETE
-### Se usa el producto temporal para probar modificaciones y baja logica
-### sin alterar los 15 productos seed
-### ========================================
-
-### Modificar producto temporal
-### Esperado: 200 OK
-PUT http://localhost:8080/api/productos/16
-Content-Type: application/json
-
-{
-  "nombre": "Producto Temporal Actualizado",
-  "descripcion": "Producto temporal actualizado correctamente",
-  "precio": 15000,
-  "stock": 3,
-  "imagenUrl": "https://ejemplo.com/producto-temporal-actualizado.png",
-  "clubId": 2
-}
-
-###
-
-### Desasociar categoria Accesorios del producto temporal
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/productos/16/categorias/4
-
-###
-
-### Eliminar producto temporal - baja logica
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/productos/16
-
-###
-
-### Buscar producto eliminado logicamente
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/productos/16
-
-###
-
-### Listar activos despues de la baja
-### Esperado: 200 OK - el producto 16 no debe aparecer
-GET http://localhost:8080/api/productos
-
-
-### ========================================
-### USUARIOS
-### ========================================
-
-### Registrar usuario
-### Esperado: 201 Created
-### La respuesta NO debe mostrar password
-POST http://localhost:8080/api/usuarios/registro
-Content-Type: application/json
-
-{
-  "nombre": "Yuyo",
+  "nombre": "Usuario",
   "apellido": "Prueba",
-  "email": "yuyo@test.com",
-  "password": "1234"
+  "email": "nuevo@demo.com",
+  "password": "Nuevo123!"
 }
 
 ###
 
-### Login correcto
-### Esperado: 200 OK
-POST http://localhost:8080/api/usuarios/login
+### ==========================================
+### 1 - LOGIN CLIENTE
+### ==========================================
+
+# @name loginCliente
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "yuyo@test.com",
-  "password": "1234"
+  "email": "cliente@demo.com",
+  "password": "Cliente123!"
 }
 
 ###
 
-### Buscar usuario por ID
-### Esperado: 200 OK
-GET http://localhost:8080/api/usuarios/1
+### ==========================================
+### 2 - LOGIN ADMIN
+### ==========================================
 
-###
-
-### Modificar usuario
-### Esperado: 200 OK
-PUT http://localhost:8080/api/usuarios/1
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "nombre": "Yuyo",
-  "apellido": "Actualizado",
-  "email": "yuyo@test.com",
-  "password": "5678"
+  "email": "admin@demo.com",
+  "password": "Admin123!"
 }
 
 ###
 
-### Login con password viejo despues del PUT
+### ==========================================
+### 3 - CATALOGO PUBLICO
+### ==========================================
+
+GET {{baseUrl}}/api/productos
+
+###
+
+### ==========================================
+### 4 - FILTRO
+### ==========================================
+
+GET {{baseUrl}}/api/productos?clubId=1
+
+###
+
+### ==========================================
+### 5 - AGREGAR PRODUCTO A FAVORITOS
+### ==========================================
+
+POST {{baseUrl}}/api/favoritos/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 6 - MIS FAVORITOS
+### ==========================================
+
+GET {{baseUrl}}/api/favoritos
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 7 - FAVORITO DUPLICADO
+### Esperado: 409 Conflict
+### ==========================================
+
+POST {{baseUrl}}/api/favoritos/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 8 - PRODUCTO INEXISTENTE
+### Esperado: 404 Not Found
+### ==========================================
+
+POST {{baseUrl}}/api/favoritos/99999
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 9 - QUITAR FAVORITO
+### Esperado: 204 No Content
+### ==========================================
+
+DELETE {{baseUrl}}/api/favoritos/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 10 - QUITAR FAVORITO QUE YA NO EXISTE
+### Ejecutar despues del request anterior
+### Esperado: 404 Not Found
+### ==========================================
+
+DELETE {{baseUrl}}/api/favoritos/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 11 - AGREGAR PRODUCTO AL CARRITO
+### ==========================================
+
+POST {{baseUrl}}/api/carrito/items
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "cantidad": 2
+}
+
+###
+
+### ==========================================
+### 12 - VER MI CARRITO
+### ==========================================
+
+GET {{baseUrl}}/api/carrito
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 13 - CREAR ORDEN DESDE EL CARRITO
+### ==========================================
+
+POST {{baseUrl}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### 14 - MIS ORDENES
+### ==========================================
+
+GET {{baseUrl}}/api/ordenes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
+
+### ==========================================
+### SEGURIDAD 1 - SIN TOKEN
 ### Esperado: 401 Unauthorized
-POST http://localhost:8080/api/usuarios/login
+### ==========================================
+
+POST {{baseUrl}}/api/productos
 Content-Type: application/json
 
 {
-  "email": "yuyo@test.com",
-  "password": "1234"
-}
-
-###
-
-### Login con password nuevo
-### Esperado: 200 OK
-POST http://localhost:8080/api/usuarios/login
-Content-Type: application/json
-
-{
-  "email": "yuyo@test.com",
-  "password": "5678"
-}
-
-###
-
-### Buscar usuario inexistente
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/usuarios/99999
-
-###
-
-### Registrar nuevamente el mismo email
-### Esperado: 400 Bad Request
-POST http://localhost:8080/api/usuarios/registro
-Content-Type: application/json
-
-{
-  "nombre": "Otro",
-  "apellido": "Usuario",
-  "email": "yuyo@test.com",
-  "password": "1234"
-}
-
-
-### ========================================
-### PRUEBAS DE ERRORES - PRODUCTOS
-### ========================================
-
-### Producto inexistente
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/productos/99999
-
-###
-
-### Producto invalido - precio negativo
-### Esperado: 400 Bad Request
-POST http://localhost:8080/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Producto invalido precio",
-  "descripcion": "Prueba de validacion",
-  "precio": -100,
+  "nombre": "Producto ilegal",
+  "descripcion": "Debe fallar sin token",
+  "precio": 1000,
   "stock": 5,
-  "imagenUrl": "https://ejemplo.com/invalido-precio.png",
+  "imagenUrl": "https://ejemplo.com/test.png",
   "clubId": 1
 }
 
 ###
 
-### Producto invalido - stock negativo
-### Esperado: 400 Bad Request
-POST http://localhost:8080/api/productos
+### ==========================================
+### SEGURIDAD 2 - CLIENTE INTENTANDO CREAR PRODUCTO
+### Esperado: 403 Forbidden
+### ==========================================
+
+POST {{baseUrl}}/api/productos
+Authorization: Bearer {{loginCliente.response.body.$.token}}
 Content-Type: application/json
 
 {
-  "nombre": "Producto invalido stock",
-  "descripcion": "Prueba de validacion",
+  "nombre": "Producto ilegal",
+  "descripcion": "Cliente no puede crear productos",
   "precio": 1000,
-  "stock": -1,
-  "imagenUrl": "https://ejemplo.com/invalido-stock.png",
+  "stock": 5,
+  "imagenUrl": "https://ejemplo.com/test.png",
   "clubId": 1
 }
 
 ###
 
-### Producto invalido - club inexistente
-### Esperado: 400 Bad Request
-POST http://localhost:8080/api/productos
-Content-Type: application/json
+### ==========================================
+### SEGURIDAD 3 - TOKEN MODIFICADO
+### Para probar:
+### 1. Copiar temporalmente un token valido del login
+### 2. Cambiar una letra en el medio
+### 3. Ejecutar este request
+### 4. Volver a dejar PEGAR_TOKEN_MODIFICADO antes del commit
+### Esperado: 401 Unauthorized
+### ==========================================
 
-{
-  "nombre": "Producto club inexistente",
-  "descripcion": "Prueba de validacion",
-  "precio": 1000,
-  "stock": 1,
-  "imagenUrl": "https://ejemplo.com/invalido-club.png",
-  "clubId": 99999
-}
-
-###
-
-### Asociar categoria a producto inexistente
-### Esperado: 404 Not Found
-POST http://localhost:8080/api/productos/99999/categorias/1
+GET {{baseUrl}}/api/favoritos
+Authorization: Bearer PEGAR_TOKEN_MODIFICADO
 
 ###
 
-### Asociar categoria inexistente a producto real
-### Esperado: 404 Not Found
-POST http://localhost:8080/api/productos/1/categorias/99999
+### ==========================================
+### SEGURIDAD 4 - TOKEN VENCIDO
+### Para probar:
+### cambiar temporalmente jwt.expiration-ms a 5000,
+### reiniciar, hacer login, esperar mas de 5 segundos
+### y ejecutar este request.
+### Antes del commit volver a jwt.expiration-ms=86400000
+### Esperado: 401 Unauthorized
+### ==========================================
 
-
-### ========================================
-### CARRITO
-### ========================================
-
-### Obtener carrito antes de crearlo
-### Esperado: 404 Not Found
-GET http://localhost:8080/api/carritos/1
+GET {{baseUrl}}/api/favoritos
+Authorization: Bearer {{loginCliente.response.body.$.token}}
 
 ###
 
-### Agregar 2 Camisetas de Boca
+### ==========================================
+### ADMIN SI PUEDE CREAR PRODUCTO
 ### Esperado: 201 Created
-POST http://localhost:8080/api/carritos/1/items
+### ==========================================
+
+POST {{baseUrl}}/api/productos
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
 Content-Type: application/json
 
 {
-  "productoId": 1,
-  "cantidad": 2
+  "nombre": "Producto creado por admin",
+  "descripcion": "Prueba positiva de rol ADMIN",
+  "precio": 15000,
+  "stock": 5,
+  "imagenUrl": "https://ejemplo.com/admin.png",
+  "clubId": 1
 }
 
 ###
-
-### Obtener carrito creado
-### Esperado: 200 OK
-GET http://localhost:8080/api/carritos/1
-
-###
-
-### Agregar nuevamente el mismo producto
-### Debe sumar la cantidad al item existente, no crear otro item
-### Esperado: 201 Created
-POST http://localhost:8080/api/carritos/1/items
-Content-Type: application/json
-
-{
-  "productoId": 1,
-  "cantidad": 1
-}
-
-###
-
-### Actualizar cantidad del item
-### El primer ItemCarrito deberia tener id 1 con una base H2 vacia
-### Esperado: 200 OK
-PUT http://localhost:8080/api/carritos/1/items/1
-Content-Type: application/json
-
-{
-  "cantidad": 4
-}
-
-###
-
-### Intentar poner una cantidad mayor al stock
-### Producto 1 tiene stock 10
-### Esperado: 400 Bad Request
-PUT http://localhost:8080/api/carritos/1/items/1
-Content-Type: application/json
-
-{
-  "cantidad": 11
-}
-
-###
-
-### Intentar agregar cantidad invalida
-### Esperado: 400 Bad Request
-POST http://localhost:8080/api/carritos/1/items
-Content-Type: application/json
-
-{
-  "productoId": 1,
-  "cantidad": 0
-}
-
-###
-
-### Intentar agregar producto inexistente
-### Esperado: 404 Not Found
-POST http://localhost:8080/api/carritos/1/items
-Content-Type: application/json
-
-{
-  "productoId": 99999,
-  "cantidad": 1
-}
-
-###
-
-### Eliminar el item del carrito
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/carritos/1/items/1
-
-###
-
-### Ver carrito despues de eliminar el item
-### Esperado: 200 OK
-GET http://localhost:8080/api/carritos/1
-
-###
-
-### Agregar producto 2 para probar vaciar carrito
-### Esperado: 201 Created
-POST http://localhost:8080/api/carritos/1/items
-Content-Type: application/json
-
-{
-  "productoId": 2,
-  "cantidad": 1
-}
-
-###
-
-### Vaciar carrito completo
-### Esperado: 204 No Content
-DELETE http://localhost:8080/api/carritos/1
-
-###
-
-### Comprobar que el carrito quedo vacio
-### Esperado: 200 OK
-GET http://localhost:8080/api/carritos/1
-
-### ========================================
-### RECORRIDO FINAL PARA DEMOSTRACION
-### ========================================
-
-### 0. Usuario ya registrado previamente en la seccion USUARIOS
-### Usuario usado en la demo: id 1
-
-### 1. Listar catalogo
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos
-
-###
-
-### 2. Filtrar catalogo por Boca Juniors
-### Esperado: 200 OK
-GET http://localhost:8080/api/productos?clubId=1
-
-###
-
-### 3. Agregar 2 Camisetas de Boca al carrito
-### Esperado: 201 Created
-POST http://localhost:8080/api/carritos/1/items
-Content-Type: application/json
-
-{
-  "productoId": 1,
-  "cantidad": 2
-}
-
-###
-
-### 4. Ver carrito con total calculado
-### Esperado: 200 OK
-GET http://localhost:8080/api/carritos/1

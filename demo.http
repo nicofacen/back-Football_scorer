@@ -1,6 +1,24 @@
 @baseUrl = http://localhost:8080
 
 ### ==========================================
+### 0 - REGISTRO DE CLIENTE
+### Ejecutar una vez luego de reiniciar la app
+### Esperado: 201 Created
+### ==========================================
+
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Usuario",
+  "apellido": "Prueba",
+  "email": "nuevo@demo.com",
+  "password": "Nuevo123!"
+}
+
+###
+
+### ==========================================
 ### 1 - LOGIN CLIENTE
 ### ==========================================
 

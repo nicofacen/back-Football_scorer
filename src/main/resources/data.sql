@@ -1,17 +1,17 @@
 INSERT INTO clubes (nombre, pais, escudo_url)
-VALUES ('Boca Juniors', 'Argentina', 'https://ejemplo.com/boca.png');
+VALUES ('Boca Juniors', 'Argentina', '/img/escudos/boca-juniors.svg');
 
 INSERT INTO clubes (nombre, pais, escudo_url)
-VALUES ('River Plate', 'Argentina', 'https://ejemplo.com/river.png');
+VALUES ('River Plate', 'Argentina', '/img/escudos/river-plate.svg');
 
 INSERT INTO clubes (nombre, pais, escudo_url)
-VALUES ('Argentina', 'Argentina', 'https://ejemplo.com/argentina.png');
+VALUES ('Argentina', 'Argentina', '/img/escudos/argentina.svg');
 
 INSERT INTO clubes (nombre, pais, escudo_url)
-VALUES ('Barcelona', 'España', 'https://ejemplo.com/barcelona.png');
+VALUES ('Barcelona', 'España', '/img/escudos/barcelona.svg');
 
 INSERT INTO clubes (nombre, pais, escudo_url)
-VALUES ('Real Madrid', 'España', 'https://ejemplo.com/real-madrid.png');
+VALUES ('Real Madrid', 'España', '/img/escudos/real-madrid.svg');
 
 
 INSERT INTO categorias (nombre, descripcion)
@@ -29,88 +29,88 @@ VALUES ('Accesorios', 'Accesorios de fútbol');
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Camiseta Boca Titular', 'Camiseta oficial de Boca Juniors', 95000, 10, 'https://ejemplo.com/boca-camiseta.png', true,
+('Camiseta Boca Titular', 'Camiseta oficial de Boca Juniors', 95000, 10, '/img/productos/camiseta-boca-titular.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Boca Juniors'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Camiseta River Titular', 'Camiseta oficial de River Plate', 95000, 10, 'https://ejemplo.com/river-camiseta.png', true,
+('Camiseta River Titular', 'Camiseta oficial de River Plate', 95000, 10, '/img/productos/camiseta-river-titular.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'River Plate'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Camiseta Argentina Titular', 'Camiseta de la Selección Argentina', 110000, 15, 'https://ejemplo.com/argentina-camiseta.png', true,
+('Camiseta Argentina Titular', 'Camiseta de la Selección Argentina', 110000, 15, '/img/productos/camiseta-argentina-titular.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Argentina'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Camiseta Barcelona Titular', 'Camiseta oficial del Barcelona', 120000, 8, 'https://ejemplo.com/barcelona-camiseta.png', true,
+('Camiseta Barcelona Titular', 'Camiseta oficial del Barcelona', 120000, 8, '/img/productos/camiseta-barcelona-titular.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Barcelona'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Camiseta Real Madrid Titular', 'Camiseta oficial del Real Madrid', 120000, 8, 'https://ejemplo.com/real-camiseta.png', true,
+('Camiseta Real Madrid Titular', 'Camiseta oficial del Real Madrid', 120000, 8, '/img/productos/camiseta-real-madrid-titular.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Real Madrid'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Botines Predator', 'Botines para fútbol', 155000, 7, 'https://ejemplo.com/predator.png', true, NULL);
+('Botines Predator', 'Botines para fútbol', 155000, 7, '/img/productos/botines-predator.svg', true, NULL);
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Botines Mercurial', 'Botines de velocidad', 170000, 6, 'https://ejemplo.com/mercurial.png', true, NULL);
+('Botines Mercurial', 'Botines de velocidad', 170000, 6, '/img/productos/botines-mercurial.svg', true, NULL);
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Pelota Argentina', 'Pelota inspirada en la Selección Argentina', 48000, 20, 'https://ejemplo.com/pelota-argentina.png', true,
+('Pelota Argentina', 'Pelota inspirada en la Selección Argentina', 48000, 20, '/img/productos/pelota-argentina.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Argentina'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Pelota Champions', 'Pelota profesional', 55000, 15, 'https://ejemplo.com/pelota-champions.png', true, NULL);
+('Pelota Champions', 'Pelota profesional', 55000, 15, '/img/productos/pelota-champions.svg', true, NULL);
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Gorra Boca Juniors', 'Gorra oficial', 32000, 12, 'https://ejemplo.com/gorra-boca.png', true,
+('Gorra Boca Juniors', 'Gorra oficial', 32000, 12, '/img/productos/gorra-boca-juniors.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Boca Juniors'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Gorra River Plate', 'Gorra oficial', 32000, 12, 'https://ejemplo.com/gorra-river.png', true,
+('Gorra River Plate', 'Gorra oficial', 32000, 12, '/img/productos/gorra-river-plate.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'River Plate'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Bufanda Barcelona', 'Bufanda oficial', 28000, 10, 'https://ejemplo.com/bufanda-barcelona.png', true,
+('Bufanda Barcelona', 'Bufanda oficial', 28000, 10, '/img/productos/bufanda-barcelona.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Barcelona'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Medias Real Madrid', 'Medias deportivas', 22000, 16, 'https://ejemplo.com/medias-real.png', true,
+('Medias Real Madrid', 'Medias deportivas', 22000, 16, '/img/productos/medias-real-madrid.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Real Madrid'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Short Argentina', 'Short de la Selección Argentina', 58000, 10, 'https://ejemplo.com/short-argentina.png', true,
+('Short Argentina', 'Short de la Selección Argentina', 58000, 10, '/img/productos/short-argentina.svg', true,
  (SELECT id FROM clubes WHERE nombre = 'Argentina'));
 
 INSERT INTO productos
 (nombre, descripcion, precio, stock, imagen_url, activo, club_id)
 VALUES
-('Mochila Fútbol', 'Mochila deportiva', 65000, 9, 'https://ejemplo.com/mochila.png', true, NULL);
+('Mochila Fútbol', 'Mochila deportiva', 65000, 9, '/img/productos/mochila-futbol.svg', true, NULL);
 
 INSERT INTO productos_categorias (producto_id, categoria_id)
 SELECT p.id, c.id
